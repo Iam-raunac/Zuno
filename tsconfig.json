@@ -1,13 +1,27 @@
+// {
+//   "compilerOptions": {
+//     "target": "ES2022",
+//     "module": "commonjs",
+//     "outDir": "./dist",
+//     "rootDir": "./src",
+//     "strict": true,
+//     "esModuleInterop": true,
+//     "skipLibCheck": true,
+//     "moduleResolution": "node"
+//   },
+//   "include": ["src/**/*"]
+// }
+
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "commonjs",
+    "module": "Node16",
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "moduleResolution": "node"
+    "moduleResolution": "Node16"
   },
   "include": ["src/**/*"]
 }

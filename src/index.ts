@@ -3,6 +3,7 @@ import 'dotenv/config';
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import { prisma } from './prisma';
+import { AuthRequest, requireAuth } from './middleware/auth';
 
 const app = express();
 const PORT = 4000;
@@ -48,9 +49,9 @@ app.post('/signup', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+// app.listen(PORT, () => {
+//   console.log(`Server running on http://localhost:${PORT}`);
+// });
 
 // ─── Login route ───────────────────────────────
 app.post('/login', async (req, res) => {
@@ -90,4 +91,44 @@ app.post('/login', async (req, res) => {
     console.error(error);
     res.status(500).json({ error: 'Something went wrong' });
   }
+});
+
+// ─── Current logged-in user ─────────────────────
+app.get('/me', requireAuth, async (req, res) => {
+  try {
+    // requireAuth middleware pehle hi JWT verify karke user attach kar chuka hai
+    const authReq = req as AuthRequest;
+    const userId = authReq.user!.userId;
+
+    // Token ke userId se latest user information database se lao
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+
+      // Sirf safe fields return karo; passwordHash kabhi nahi
+      select: {
+        id: true,
+        email: true,
+        createdAt: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        error: 'User not found',
+      });
+    }
+
+    return res.json({ user });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      error: 'Something went wrong',
+    });
+  }
+});
+
+// Saare routes register hone ke baad server start karo
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });
