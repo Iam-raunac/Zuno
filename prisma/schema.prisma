@@ -12,4 +12,24 @@ model User {
   email        String   @unique
   passwordHash String
   createdAt    DateTime @default(now())
+
+  // One user can have multiple login sessions
+  sessions Session[]
+}
+
+model Session {
+  id               String    @id @default(uuid())
+  userId           String
+  refreshTokenHash String    @unique
+  expiresAt        DateTime
+  revokedAt        DateTime?
+  createdAt        DateTime  @default(now())
+  lastUsedAt       DateTime  @updatedAt
+
+  // Every session belongs to one user
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Make session lookup faster
+  @@index([userId, revokedAt])
+  @@index([expiresAt])
 }
